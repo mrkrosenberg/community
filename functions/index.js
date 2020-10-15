@@ -8,6 +8,9 @@ admin.initializeApp();
 // Initialize express app
 const app = express();
 
+// Firebase config object
+const firebaseConfig = require('./config');
+
 // Firebase library
 const firebase = require('firebase');
 firebase.initializeApp(firebaseConfig);
