@@ -6,8 +6,9 @@ const firebase = require('firebase');
 // firebase.initializeApp(firebaseConfig)
 
 // Validators
-const { validateSignupData, validateLoginData } = require('../util/validators');
+const { validateSignupData, validateLoginData, reduceUserDetails } = require('../util/validators');
 
+// Sign up
 exports.signup = (req, res) => {
 
     const newUser = {
@@ -71,6 +72,7 @@ exports.signup = (req, res) => {
         })
 };
 
+// Login
 exports.login = (req, res) => {
 
     const user = {
@@ -101,6 +103,26 @@ exports.login = (req, res) => {
         })
 };
 
+// Add user details
+exports.addUserDetails = (req, res) => {
+
+    let userDetails = reduceUserDetails(req.body);
+
+    db.doc(`/users/${req.user.handle}`).update(userDetails)
+        .then(() => {
+            return res.json({
+                message: 'Profile updated successfully'
+            })
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({
+                error: err.code
+            })
+        });
+};
+
+// Upload profile image
 exports.uploadImage = (req, res) => {
 
     const BusBoy = require('busboy');
@@ -121,7 +143,7 @@ exports.uploadImage = (req, res) => {
             return res.status(400).json({
                 error: 'Wrong file type submitted'
             })
-        }
+        };
 
         const imageExtension = filename.split('.')[filename.split('.').length - 1];
         imageFileName = `${Math.round(Math.random() * 1000000000)}.${imageExtension}`;
@@ -161,3 +183,5 @@ exports.uploadImage = (req, res) => {
     });
     busboy.end(req.rawBody);
 };
+
+
