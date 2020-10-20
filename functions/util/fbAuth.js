@@ -1,4 +1,4 @@
-const { admin } = require('./firebase');
+const { admin, db } = require('./firebase');
 
 module.exports = (req, res, next) => {
 
@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
     admin.auth().verifyIdToken(idToken)
         .then(decodedToken => {
             req.user = decodedToken;
-            console.log(decodedToken);
+            // console.log(decodedToken);
             return db.collection('users')
                         .where('userId', '==', req.user.uid)
                         .limit(1)
@@ -27,7 +27,7 @@ module.exports = (req, res, next) => {
             return next();
         })
         .catch(err => {
-            console.error('Token error: ', err);
+            // console.error('Token error: ', err);
             return res.status(403).json(err);
         });
         
