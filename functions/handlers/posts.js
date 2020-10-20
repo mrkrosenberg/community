@@ -47,6 +47,7 @@ exports.createNewPost = (req, res) => {
         });
 };
 
+// Fetch single post
 exports.getPost = (req, res) => {
 
     let postData = {};
@@ -77,4 +78,45 @@ exports.getPost = (req, res) => {
                 error: err.code
             })
         });
+};
+
+// Comment on a post
+exports.commentOnPost = (req, res) => {
+    console.log('made it here')
+    if(req.body.body.trim() === '') {
+        return res.status(400).json({
+            error: 'Must not be empty'
+        });
+    };
+
+    const newComment = {
+        body: req.body.body,
+        createdAt: new Date().toISOString(),
+        postId: req.params.postId,
+        userHandle: req.user.handle,
+        userImage: req.user.imageUrl
+    };
+    console.log(newComment);
+
+    db.doc(`/posts/${req.params.postId}`).get()
+        .then(doc => {
+            console.log('made it here')
+            if(!doc.exists) {
+                return res.status(404).json({
+                    error: 'Post not found'
+                })
+            };
+            return db.collection('comments')
+                        .add(newComment)
+        })
+        .then(() => {
+            console.log('new comment: ', newComment)
+            res.json(newComment)
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({
+                error: 'Something went wrong'
+            })
+        })
 };
