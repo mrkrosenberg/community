@@ -17,14 +17,11 @@ exports.signup = (req, res) => {
         confirmPassword: req.body.confirmPassword,
         handle: req.body.handle,
     };
-
+    let token, userId;
+    const avatarImage = 'avatar.png';
     const { valid, errors } = validateSignupData(newUser);
     
     if(!valid) return res.status(400).json(errors);
-
-    const avatarImage = 'avatar.png';
-
-    let token, userId;
 
     db.doc(`/users/${newUser.handle}`)
         .get()
@@ -120,6 +117,33 @@ exports.addUserDetails = (req, res) => {
                 error: err.code
             })
         });
+};
+
+// Get current details
+exports.getAuthenticatedUser = (req, res) => {
+
+    let userData = {};
+    db.doc(`/users/${req.user.handle}`).get()
+        .then(doc => {
+            if(doc.exists) {
+                userData.credentials = doc.data();
+                return db.collection('likes').where('userHandle', '==', req.user.handle)
+                            .get();
+            }
+        })
+        .then(data => {
+            userData.likes = [];
+            data.forEach(doc => {
+                userData.likes.push(doc.data())
+            });
+            return res.json(userData);
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).json({
+                error: err.code
+            })
+        })
 };
 
 // Upload profile image
