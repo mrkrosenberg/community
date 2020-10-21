@@ -64,10 +64,10 @@ exports.createNewPost = (req, res) => {
     const newPost = {
         body: req.body.body,
         userHandle: req.user.handle,
-        // userImage: req.user.imageUrl,
+        userImage: req.user.imageUrl,
         createdAt: new Date().toISOString(),
-        // likeCount: 0,
-        // commentCount: 0
+        likeCount: 0,
+        commentCount: 0
     };
 
     db.collection('posts')
@@ -108,17 +108,21 @@ exports.commentOnPost = (req, res) => {
 
     db.doc(`/posts/${req.params.postId}`).get()
         .then(doc => {
-            console.log('made it here')
             if(!doc.exists) {
                 return res.status(404).json({
                     error: 'Post not found'
                 })
             };
+            return doc.ref.update({
+                commentCount: doc.data().commentCount + 1
+            })
+        })
+        .then(() => {
             return db.collection('comments')
                         .add(newComment)
         })
         .then(() => {
-            console.log('new comment: ', newComment)
+            // console.log('new comment: ', newComment)
             res.json(newComment)
         })
         .catch(err => {
@@ -154,7 +158,6 @@ exports.likePost = (req, res) => {
                     }
                 })
                 .then(data => {
-                    console.log('like data: ', data)
                     if(!data.emtpy) {
                         return db.collection('likes')
                                     .add({
@@ -208,7 +211,6 @@ exports.unlikePost = (req, res) => {
                     }
                 })
                 .then(data => {
-                    console.log('line 211: ', data)
                     if(data.emtpy) {
                         return res.status(400).json({
                             error: 'Post not liked'
