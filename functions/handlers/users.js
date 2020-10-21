@@ -8,7 +8,7 @@ const firebase = require('firebase');
 // Validators
 const { validateSignupData, validateLoginData, reduceUserDetails } = require('../util/validators');
 
-// Sign up
+// Signup
 exports.signup = (req, res) => {
 
     const newUser = {

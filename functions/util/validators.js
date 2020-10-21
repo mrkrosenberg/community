@@ -1,4 +1,4 @@
-// Authentication Form Validation
+// Input Validation Helpers
 const isEmail = (email) => {
 
     const emailTemplate = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -12,6 +12,7 @@ const isEmpty = (string) => {
     else return false
 };
 
+// Signup Validation
 exports.validateSignupData = (data) => {
 
         // Validate sign up data
@@ -21,46 +22,48 @@ exports.validateSignupData = (data) => {
             errors.email = 'Must not be empty'
         } else if(!isEmail(data.email)) {
             errors.email = 'Must be a valid email address'
-        }
+        };
     
         if(isEmpty(data.password)) {
             errors.password = 'Must not be empty'
-        } 
+        } ;
     
         if(data.password !== data.confirmPassword) {
             errors.confirmPassword = 'Passwords must match'
-        }
+        };
     
         if(isEmpty(data.handle)) {
             errors.handle = 'Must not be empty'
-        }
+        };
 
         return {
             errors,
             valid: Object.keys(errors).length === 0 ? true : false
-        }
+        };
 };
 
+// Login Validation
 exports.validateLoginData = (data) => {
 
         let errors = {};
 
         if(isEmpty(data.email)) {
             errors.email = 'Must not be empty'
-        }
+        };
         if(isEmpty(data.password)) {
             errors.password = 'Must not be empty'
-        }
+        };
         if(Object.keys(errors).length > 0) {
             return res.status(400).json(errors)
-        }   
+        } ;  
         
         return {
             errors,
             valid: Object.keys(errors).length === 0 ? true : false
-        }
+        };
 };
 
+// Update Profile bio, website, location
 exports.reduceUserDetails = (data) => {
 
     let userDetails = {};

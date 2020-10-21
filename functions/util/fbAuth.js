@@ -1,5 +1,6 @@
 const { admin, db } = require('./firebase');
 
+// Route Authentication
 module.exports = (req, res, next) => {
 
     let idToken;
@@ -24,6 +25,7 @@ module.exports = (req, res, next) => {
                         .get();
         })
         .then(data => {
+            // console.log('fbauth 28: ', data)
             req.user.handle = data.docs[0].data().handle;
             req.user.imageUrl = data.docs[0].data().imageUrl;
             return next();

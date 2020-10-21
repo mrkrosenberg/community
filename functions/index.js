@@ -7,24 +7,40 @@ const firebase = require('firebase');
 firebase.initializeApp(firebaseConfig);
 
 // Routes
-const { getAllPosts, createNewPost, getPost, commentOnPost } = require('./handlers/posts');
-const { signup, login, uploadImage, addUserDetails, getAuthenticatedUser } = require('./handlers/users');
+const { 
+    getAllPosts, 
+    createNewPost, 
+    getPost, 
+    commentOnPost, 
+    likePost, 
+    unlikePost 
+} = require('./handlers/posts');
+const { 
+    signup, 
+    login, 
+    uploadImage, 
+    addUserDetails, 
+    getAuthenticatedUser 
+} = require('./handlers/users');
 
 // Auth Middleware
 const FBAuth = require('./util/fbAuth');
 
 // Posts Routes
 app.get('/posts', getAllPosts);
-app.post('/posts', FBAuth, createNewPost);
 app.get('/posts/:postId', getPost);
+app.get('/posts/:postId/like', FBAuth, likePost);
+app.get('/posts/:postId/unlike', FBAuth, unlikePost)
+app.post('/posts', FBAuth, createNewPost);
 app.post('/posts/:postId/comment', FBAuth, commentOnPost)
 
+
 // Users Routes
+app.get('/user', FBAuth, getAuthenticatedUser);
 app.post('/signup', signup);
 app.post('/login', login);
 app.post('/user/image', FBAuth, uploadImage);
 app.post('/user', FBAuth, addUserDetails);
-app.get('/user', FBAuth, getAuthenticatedUser);
 
 // API entry point
 exports.api = functions.https.onRequest(app);
