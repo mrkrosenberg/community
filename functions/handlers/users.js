@@ -66,7 +66,7 @@ exports.signup = (req, res) => {
                     })
             }
             
-        })
+        });
 };
 
 // Login
@@ -167,7 +167,7 @@ exports.uploadImage = (req, res) => {
             return res.status(400).json({
                 error: 'Wrong file type submitted'
             })
-        };
+        }
 
         const imageExtension = filename.split('.')[filename.split('.').length - 1];
         imageFileName = `${Math.round(Math.random() * 1000000000)}.${imageExtension}`;

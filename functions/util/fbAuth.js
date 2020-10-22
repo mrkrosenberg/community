@@ -12,7 +12,7 @@ module.exports = (req, res, next) => {
         return res.status(403).json({
             error: 'Unauthorized'
         })
-    };
+    }
 
     admin.auth()
         .verifyIdToken(idToken)

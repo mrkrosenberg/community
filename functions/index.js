@@ -1,12 +1,15 @@
 const functions = require('firebase-functions');
 const app = require('express')();
 
+// DB ref
+const { db } = require('./util/firebase');
+
 // Firebase
 const firebaseConfig = require('./config');
 const firebase = require('firebase');
 firebase.initializeApp(firebaseConfig);
 
-// Routes
+// Route imports
 const { 
     getAllPosts, 
     createNewPost, 
@@ -45,3 +48,68 @@ app.post('/user', FBAuth, addUserDetails);
 
 // API entry point
 exports.api = functions.https.onRequest(app);
+
+// Database Triggers
+exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
+    .onCreate(snapshot => {
+
+        db.document(`/posts/${snapshot.data().postId}`).get()
+            .then(doc => {
+                if(doc.exists) {
+                    return db.doc(`/notifications/${snapshot.id}`).set({
+                        createdAt: new Date().toISOString(),
+                        recipient: doc.data().userHandle,
+                        sender: snapshot.data().userHandle,
+                        type: 'like',
+                        read: false,
+                        postId: doc.id
+                    })
+                }
+            })
+            .then(() => {
+                return;
+            })
+            .catch(err => {
+                console.err(err);
+                return;
+            });
+    });
+
+exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
+    .onCreate((snapshot) => {
+
+        db.document(`/posts/${snapshot.data().postId}`).get()
+        .then(doc => {
+            if(doc.exists) {
+                return db.doc(`/notifications/${snapshot.id}`).set({
+                    createdAt: new Date().toISOString(),
+                    recipient: doc.data().userHandle,
+                    sender: snapshot.data().userHandle,
+                    type: 'comment',
+                    read: false,
+                    postId: doc.id
+                })
+            }
+        })
+        .then(() => {
+            return;
+        })
+        .catch(err => {
+            console.err(err);
+            return;
+        });
+    });
+
+exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
+    .onDelete(snapshot => {
+
+        db.doc(`/notifications/${snapshot.id}`)
+            .delete()
+            .then(() => {
+                return;
+            })
+            .catch(err => {
+                console.error(err);
+                return;
+            });
+    });

@@ -11,7 +11,13 @@ exports.getAllPosts = (req, res) => {
             data.forEach(doc => {
                 posts.push({
                     postId: doc.id,
-                    ...doc.data()
+                    body: doc.data().body,
+                    userHandle: doc.data().userHandle,
+                    createdAt: doc.data().createdAt,
+                    commentCount: doc.data().commentCount,
+                    likeCount: doc.data().likeCount,
+                    userImage: doc.data().userImage
+                    // ...doc.data()
                 })
             })
             return res.json(posts);
@@ -59,7 +65,7 @@ exports.createNewPost = (req, res) => {
         return res.status(400).json({
             body: 'Body must not be empty'
         });
-    };
+    }
 
     const newPost = {
         body: req.body.body,
@@ -95,7 +101,7 @@ exports.commentOnPost = (req, res) => {
         return res.status(400).json({
             error: 'Must not be empty'
         });
-    };
+    }
 
     const newComment = {
         body: req.body.body,
@@ -112,7 +118,7 @@ exports.commentOnPost = (req, res) => {
                 return res.status(404).json({
                     error: 'Post not found'
                 })
-            };
+            }
             return doc.ref.update({
                 commentCount: doc.data().commentCount + 1
             })
@@ -123,7 +129,7 @@ exports.commentOnPost = (req, res) => {
         })
         .then(() => {
             // console.log('new comment: ', newComment)
-            res.json(newComment)
+            return res.json(newComment)
         })
         .catch(err => {
             console.error(err);
@@ -225,7 +231,7 @@ exports.unlikePost = (req, res) => {
                                 });
                             })
                             .then(() => {
-                                res.json(postData)
+                                return res.json(postData)
                             });
                     }
                 })
@@ -258,14 +264,15 @@ exports.deletePost = (req, res) => {
             }
         })
         .then(() => {
-            res.json({
+            return res.json({
                 message: 'Post deleted successfully'
             })
         })
         .catch(err => {
             console.error(err);
             return res.status(500).json({
-                error: err.code
+                error: err.code,
+                message: 'Unauthorized'
             })
         });
 };
