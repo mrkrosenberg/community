@@ -11,13 +11,7 @@ exports.getAllPosts = (req, res) => {
             data.forEach(doc => {
                 posts.push({
                     postId: doc.id,
-                    body: doc.data().body,
-                    userHandle: doc.data().userHandle,
-                    createdAt: doc.data().createdAt,
-                    commentCount: doc.data().commentCount,
-                    likeCount: doc.data().likeCount,
-                    userImage: doc.data().userImage
-                    // ...doc.data()
+                    ...doc.data()
                 })
             })
             return res.json(posts);
@@ -165,7 +159,6 @@ exports.likePost = (req, res) => {
                 })
                 .then(data => {
                     if(data.empty) {
-                        // console.log('data data: ', data.empty)
                         return db.collection('likes')
                                     .add({
                                         postId: req.params.postId,

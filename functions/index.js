@@ -23,7 +23,7 @@ const {
     signup, 
     login, 
     uploadImage, 
-    addUserDetails, 
+    updateProfile, 
     getAuthenticatedUser 
 } = require('./handlers/users');
 
@@ -44,7 +44,7 @@ app.get('/user', FBAuth, getAuthenticatedUser);
 app.post('/signup', signup);
 app.post('/login', login);
 app.post('/user/image', FBAuth, uploadImage);
-app.post('/user', FBAuth, addUserDetails);
+app.post('/user', FBAuth, updateProfile);
 
 // API entry point
 exports.api = functions.https.onRequest(app);

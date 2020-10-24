@@ -12,10 +12,11 @@ const { validateSignupData, validateLoginData, reduceUserDetails } = require('..
 exports.signup = (req, res) => {
 
     const newUser = {
-        email: req.body.email,
-        password: req.body.password,
-        confirmPassword: req.body.confirmPassword,
-        handle: req.body.handle,
+        // email: req.body.email,
+        // password: req.body.password,
+        // confirmPassword: req.body.confirmPassword,
+        // handle: req.body.handle,
+        ...req.body
     };
     let token, userId;
     const avatarImage = 'avatar.png';
@@ -73,35 +74,37 @@ exports.signup = (req, res) => {
 exports.login = (req, res) => {
 
     const user = {
-        email: req.body.email,
-        password: req.body.password
+        // email: req.body.email,
+        // password: req.body.password
+        ...req.body
     };
 
     const { valid, errors } = validateLoginData(user);
     
     if(!valid) return res.status(400).json(errors);
 
-    firebase.auth().signInWithEmailAndPassword(user.email, user.password)
-        .then(data => {
-            return data.user.getIdToken();
-        })
-        .then(token => {
-            return res.json({ token })
-        })
-        .catch(err => {
-            console.error(err);
-            if(err.code === 'auth/wrong-password') {
-                return res.status(403).json({
-                    general: 'Wrong credentials, please try again'
-                })
-            } else return res.status(500).json({
-                error: err.code
+    firebase.auth()
+            .signInWithEmailAndPassword(user.email, user.password)
+            .then(data => {
+                return data.user.getIdToken();
             })
-        })
+            .then(token => {
+                return res.json({ token })
+            })
+            .catch(err => {
+                console.error(err);
+                if(err.code === 'auth/wrong-password') {
+                    return res.status(403).json({
+                        general: 'Wrong credentials, please try again'
+                    })
+                } else return res.status(500).json({
+                    error: err.code
+                })
+            })
 };
 
 // Add user details
-exports.addUserDetails = (req, res) => {
+exports.updateProfile = (req, res) => {
 
     let userDetails = reduceUserDetails(req.body);
 

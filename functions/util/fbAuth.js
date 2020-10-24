@@ -25,14 +25,18 @@ module.exports = (req, res, next) => {
                         .get();
         })
         .then(data => {
-            // console.log('fbauth 28: ', data)
-            req.user.handle = data.docs[0].data().handle;
-            req.user.imageUrl = data.docs[0].data().imageUrl;
+            dataRef = data.docs[0].data();
+            // req.user.handle = data.docs[0].data().handle;
+            req.user.handle = dataRef.handle;
+            // req.user.imageUrl = data.docs[0].data().imageUrl;
+            req.user.imageUrl = dataRef.imageUrl;
             return next();
         })
         .catch(err => {
             // console.error('Token error: ', err);
-            return res.status(403).json(err);
+            return res.status(403).json({
+                error: err.code
+            });
         });
         
 };

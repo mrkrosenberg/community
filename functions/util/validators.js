@@ -12,6 +12,11 @@ const isEmpty = (string) => {
     else return false
 };
 
+// Message variables
+const emtpyErrorMessage = 'Must not be empty';
+const emailErrorMessage = 'Must be a valid email address';
+const passwordErrorMessage = 'Passwords must match';
+
 // Signup Validation
 exports.validateSignupData = (data) => {
 
@@ -19,21 +24,21 @@ exports.validateSignupData = (data) => {
         let errors = {};
 
         if(isEmpty(data.email)) {
-            errors.email = 'Must not be empty'
+            errors.email = emtpyErrorMessage;
         } else if(!isEmail(data.email)) {
-            errors.email = 'Must be a valid email address'
+            errors.email = emailErrorMessage;
         }
     
         if(isEmpty(data.password)) {
-            errors.password = 'Must not be empty'
+            errors.password = emtpyErrorMessage;
         } 
     
         if(data.password !== data.confirmPassword) {
-            errors.confirmPassword = 'Passwords must match'
+            errors.confirmPassword = passwordErrorMessage;
         }
     
         if(isEmpty(data.handle)) {
-            errors.handle = 'Must not be empty'
+            errors.handle = emtpyErrorMessage;
         }
 
         return {
@@ -48,10 +53,10 @@ exports.validateLoginData = (data) => {
         let errors = {};
 
         if(isEmpty(data.email)) {
-            errors.email = 'Must not be empty'
+            errors.email = emtpyErrorMessage;
         }
         if(isEmpty(data.password)) {
-            errors.password = 'Must not be empty'
+            errors.password = emtpyErrorMessage;
         }
         if(Object.keys(errors).length > 0) {
             return res.status(400).json(errors)
