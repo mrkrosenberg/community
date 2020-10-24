@@ -164,7 +164,8 @@ exports.likePost = (req, res) => {
                     }
                 })
                 .then(data => {
-                    if(!data.emtpy) {
+                    if(data.empty) {
+                        // console.log('data data: ', data.empty)
                         return db.collection('likes')
                                     .add({
                                         postId: req.params.postId,
