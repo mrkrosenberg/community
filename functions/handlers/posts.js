@@ -218,7 +218,7 @@ exports.unlikePost = (req, res) => {
                     }
                 })
                 .then(data => {
-                    if(data.emtpy) {
+                    if(data.empty) {
                         return res.status(400).json({
                             error: 'Post not liked'
                         });
