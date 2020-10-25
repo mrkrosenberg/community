@@ -17,7 +17,8 @@ const {
     commentOnPost, 
     likePost, 
     unlikePost,
-    deletePost 
+    deletePost,
+    testFunction 
 } = require('./handlers/posts');
 const { 
     signup, 
@@ -39,7 +40,8 @@ app.get('/posts/:postId/like', FBAuth, likePost);
 app.get('/posts/:postId/unlike', FBAuth, unlikePost);
 app.post('/posts', FBAuth, createNewPost);
 app.post('/posts/:postId/comment', FBAuth, commentOnPost);
-app.delete('/posts/:postId', FBAuth, deletePost)
+app.delete('/posts/:postId', FBAuth, deletePost);
+app.delete('/posts/testFunction', testFunction);
 
 // Users Routes
 app.get('/user', FBAuth, getAuthenticatedUser);
@@ -48,7 +50,7 @@ app.post('/signup', signup);
 app.post('/login', login);
 app.post('/user/image', FBAuth, uploadImage);
 app.post('/user', FBAuth, updateProfile);
-app.post('/notifications', FBAuth, markNotificationsRead)
+app.post('/notifications', FBAuth, markNotificationsRead);
 
 // API entry point
 exports.api = functions.https.onRequest(app);
@@ -112,5 +114,61 @@ exports.createNotificationOnComment = functions.firestore.document('comments/{id
                 return;
             });
     });
+
+// Updates user image on all posts, comments
+exports.onUserImageChange = functions.firestore.document('/users/{userId}')
+    .onUpdate(change => {
+        console.log(change.before.data())
+        console.log(change.after.data())
+
+        if(change.before.data().imageUrl !== change.after.data().imageUrl) {
+            console.log('image has changed')
+            let batch = db.batch();
+
+            return db.collection('posts').where('userHandle', '==', change.before.data().handle)
+                .get()
+                .then(data => {
+                    data.forEach(doc => {
+                        const post = db.doc(`/posts/${doc.id}`);
+                        batch.update(post, {
+                            userImage: change.after.data().imageUrl
+                        })
+                    })
+                    return batch.commit();
+                })
+        }
+    });
+ 
+// Deletes all comments, likes, notifications when post is deleted
+exports.onPostDelete = functions.firestore.document('/posts/{postId}')
+    .onDelete((snapshot, context) => {
+        const postId = context.params.postId;
+        const batch = db.batch();
+
+        return db.collection('comments').where('postId', '==', postId)
+                    .get()
+                    .then(data => {
+                        data.forEach(doc => {
+                            batch.delete(db.doc(`/comments/${doc.id}`));
+                        })
+                        return db.collection('likes').where('postId', '==', postId);
+                    })
+                    .then(data => {
+                        data.forEach(doc => {
+                            batch.delete(db.doc(`/likes/${doc.id}`));
+                        })
+                        return db.collection('notifications').where('postId', '==', postId);
+                    })
+                    .then(data => {
+                        data.forEach(doc => {
+                            batch.delete(db.doc(`/notifications/${doc.id}`))
+                        })
+                        return batch.commit()
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    })
+    });
+
 
 

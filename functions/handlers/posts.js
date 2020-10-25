@@ -270,3 +270,31 @@ exports.deletePost = (req, res) => {
             })
         });
 };
+
+// Refactor of onPostDelete, written as callable function to test only
+
+exports.testFunction = (req, res) => {
+
+    console.log('req: ', req);
+
+    const collectionsArray = ['comments', 'likes', 'notifications'];
+    const postId = req.params.postId;
+    const batch = db.batch();
+
+    return collectionsArray.forEach(collection => {
+        db.collection(collection).where('postId', '==', postId)
+        .get()
+        .then(data => {
+            data.forEach(doc => {
+                batch.delete(db.doc(`/${collection}/${doc.id}`));
+            })
+            return batch.commit();
+        })
+        .then(err => {
+            console.error(err);
+            return res.status(400).json({
+                error: err.code
+            })
+        })
+    })
+};
