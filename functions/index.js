@@ -59,7 +59,7 @@ exports.api = functions.https.onRequest(app);
 exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
     .onCreate(snapshot => {
 
-        db.doc(`/posts/${snapshot.data().postId}`).get()
+        return db.doc(`/posts/${snapshot.data().postId}`).get()
             .then(doc => {
                 if(doc.exists) {
                     return db.doc(`/notifications/${snapshot.id}`).set({
@@ -72,9 +72,6 @@ exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
                     })
                 }
             })
-            .then(() => {
-                return;
-            })
             .catch(err => {
                 console.err(err);
                 return;
@@ -85,11 +82,8 @@ exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
 exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
     .onDelete(snapshot => {
 
-        db.doc(`/notifications/${snapshot.id}`)
+        return db.doc(`/notifications/${snapshot.id}`)
             .delete()
-            .then(() => {
-                return;
-            })
             .catch(err => {
                 console.error(err);
                 return;
@@ -100,7 +94,7 @@ exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
 exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
     .onCreate((snapshot) => {
 
-        db.doc(`/posts/${snapshot.data().postId}`).get()
+        return db.doc(`/posts/${snapshot.data().postId}`).get()
             .then(doc => {
                 if(doc.exists) {
                     return db.doc(`/notifications/${snapshot.id}`).set({
@@ -113,13 +107,10 @@ exports.createNotificationOnComment = functions.firestore.document('comments/{id
                     })
                 }
             })
-        .then(() => {
-            return;
-        })
-        .catch(err => {
-            console.err(err);
-            return;
-        });
+            .catch(err => {
+                console.err(err);
+                return;
+            });
     });
 
 

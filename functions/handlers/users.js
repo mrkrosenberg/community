@@ -63,7 +63,8 @@ exports.signup = (req, res) => {
                 })
             } else {
                 return res.status(500).json({
-                        error: err.code
+                        error: err.code,
+                        general: 'Something went wrong, please try again'
                     })
             }
             
