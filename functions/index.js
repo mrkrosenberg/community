@@ -24,7 +24,9 @@ const {
     login, 
     uploadImage, 
     updateProfile, 
-    getAuthenticatedUser 
+    getAuthenticatedUser,
+    getUserDetails,
+    markNotificationsRead 
 } = require('./handlers/users');
 
 // Auth Middleware
@@ -41,10 +43,12 @@ app.delete('/posts/:postId', FBAuth, deletePost)
 
 // Users Routes
 app.get('/user', FBAuth, getAuthenticatedUser);
+app.get('/user/:handle', getUserDetails);
 app.post('/signup', signup);
 app.post('/login', login);
 app.post('/user/image', FBAuth, uploadImage);
 app.post('/user', FBAuth, updateProfile);
+app.post('/notifications', FBAuth, markNotificationsRead)
 
 // API entry point
 exports.api = functions.https.onRequest(app);
