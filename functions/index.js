@@ -50,10 +50,12 @@ app.post('/user', FBAuth, updateProfile);
 exports.api = functions.https.onRequest(app);
 
 // Database Triggers
+
+// Like notification
 exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
     .onCreate(snapshot => {
 
-        db.document(`/posts/${snapshot.data().postId}`).get()
+        db.doc(`/posts/${snapshot.data().postId}`).get()
             .then(doc => {
                 if(doc.exists) {
                     return db.doc(`/notifications/${snapshot.id}`).set({
@@ -75,31 +77,7 @@ exports.createNotificationOnLike = functions.firestore.document('likes/{id}')
             });
     });
 
-exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
-    .onCreate((snapshot) => {
-
-        db.document(`/posts/${snapshot.data().postId}`).get()
-        .then(doc => {
-            if(doc.exists) {
-                return db.doc(`/notifications/${snapshot.id}`).set({
-                    createdAt: new Date().toISOString(),
-                    recipient: doc.data().userHandle,
-                    sender: snapshot.data().userHandle,
-                    type: 'comment',
-                    read: false,
-                    postId: doc.id
-                })
-            }
-        })
-        .then(() => {
-            return;
-        })
-        .catch(err => {
-            console.err(err);
-            return;
-        });
-    });
-
+// Delete like notification
 exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
     .onDelete(snapshot => {
 
@@ -113,3 +91,31 @@ exports.deleteNotificationOnUnlike = functions.firestore.document('likes/{id}')
                 return;
             });
     });
+
+// Comment notification
+exports.createNotificationOnComment = functions.firestore.document('comments/{id}')
+    .onCreate((snapshot) => {
+
+        db.doc(`/posts/${snapshot.data().postId}`).get()
+            .then(doc => {
+                if(doc.exists) {
+                    return db.doc(`/notifications/${snapshot.id}`).set({
+                        createdAt: new Date().toISOString(),
+                        recipient: doc.data().userHandle,
+                        sender: snapshot.data().userHandle,
+                        type: 'comment',
+                        read: false,
+                        postId: doc.id
+                    })
+                }
+            })
+        .then(() => {
+            return;
+        })
+        .catch(err => {
+            console.err(err);
+            return;
+        });
+    });
+
+

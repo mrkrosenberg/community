@@ -1,3 +1,7 @@
 node_modules/
 
+# Firebase config 
 config.js
+
+# Database schema
+schema.js
