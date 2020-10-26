@@ -136,7 +136,24 @@ exports.onUserImageChange = functions.firestore.document('/users/{userId}')
                             userImage: change.after.data().imageUrl
                         })
                     })
+                    return db.collection('comments').where('userHandle', '==', change.before.data().handle)
+                        .get();
+                })
+                .then(data => {
+                    data.forEach(doc => {
+                        const comment = db.doc(`/comments/${doc.id}`);
+                        batch.update(comment, {
+                            userImage: change.after.data().imageUrl 
+                        })
+                    })
                     return batch.commit();
+                })
+                .catch(err => {
+                    console.error(err);
+                    return res.status(400).json({
+                        error: err.code,
+                        message: 'Error deleting post/comments'
+                    })
                 })
         } else return true;
     });
@@ -148,30 +165,30 @@ exports.onPostDelete = functions.firestore.document('/posts/{postId}')
         const batch = db.batch();
 
         return db.collection('comments').where('postId', '==', postId)
-                    .get()
-                    .then(data => {
-                        console.log('comment collection: ', data)
-                        data.forEach(doc => {
-                            console.log('doc deleted: ', doc)
-                            batch.delete(db.doc(`/comments/${doc.id}`));
-                        })
-                        return db.collection('likes').where('postId', '==', postId).get();
-                    })
-                    .then(data => {
-                        data.forEach(doc => {
-                            batch.delete(db.doc(`/likes/${doc.id}`));
-                        })
-                        return db.collection('notifications').where('postId', '==', postId).get();
-                    })
-                    .then(data => {
-                        data.forEach(doc => {
-                            batch.delete(db.doc(`/notifications/${doc.id}`))
-                        })
-                        return batch.commit();
-                    })
-                    .catch(err => {
-                        console.error(err);
-                    })
+            .get()
+            .then(data => {
+                console.log('comment collection: ', data)
+                data.forEach(doc => {
+                    console.log('doc deleted: ', doc)
+                    batch.delete(db.doc(`/comments/${doc.id}`));
+                })
+                return db.collection('likes').where('postId', '==', postId).get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/likes/${doc.id}`));
+                })
+                return db.collection('notifications').where('postId', '==', postId).get();
+            })
+            .then(data => {
+                data.forEach(doc => {
+                    batch.delete(db.doc(`/notifications/${doc.id}`))
+                })
+                return batch.commit();
+            })
+            .catch(err => {
+                console.error(err);
+            });
     });
 
 
