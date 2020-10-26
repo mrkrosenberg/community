@@ -41,7 +41,9 @@ app.get('/posts/:postId/unlike', FBAuth, unlikePost);
 app.post('/posts', FBAuth, createNewPost);
 app.post('/posts/:postId/comment', FBAuth, commentOnPost);
 app.delete('/posts/:postId', FBAuth, deletePost);
-app.delete('/posts/testFunction', testFunction);
+
+// Random test function to test refactor
+app.delete('/post/testFunction/:postId', testFunction);
 
 // Users Routes
 app.get('/user', FBAuth, getAuthenticatedUser);
@@ -122,7 +124,7 @@ exports.onUserImageChange = functions.firestore.document('/users/{userId}')
         console.log(change.after.data())
 
         if(change.before.data().imageUrl !== change.after.data().imageUrl) {
-            console.log('image has changed')
+            // console.log('image has changed')
             let batch = db.batch();
 
             return db.collection('posts').where('userHandle', '==', change.before.data().handle)
@@ -136,7 +138,7 @@ exports.onUserImageChange = functions.firestore.document('/users/{userId}')
                     })
                     return batch.commit();
                 })
-        }
+        } else return true;
     });
  
 // Deletes all comments, likes, notifications when post is deleted
@@ -148,22 +150,24 @@ exports.onPostDelete = functions.firestore.document('/posts/{postId}')
         return db.collection('comments').where('postId', '==', postId)
                     .get()
                     .then(data => {
+                        console.log('comment collection: ', data)
                         data.forEach(doc => {
+                            console.log('doc deleted: ', doc)
                             batch.delete(db.doc(`/comments/${doc.id}`));
                         })
-                        return db.collection('likes').where('postId', '==', postId);
+                        return db.collection('likes').where('postId', '==', postId).get();
                     })
                     .then(data => {
                         data.forEach(doc => {
                             batch.delete(db.doc(`/likes/${doc.id}`));
                         })
-                        return db.collection('notifications').where('postId', '==', postId);
+                        return db.collection('notifications').where('postId', '==', postId).get();
                     })
                     .then(data => {
                         data.forEach(doc => {
                             batch.delete(db.doc(`/notifications/${doc.id}`))
                         })
-                        return batch.commit()
+                        return batch.commit();
                     })
                     .catch(err => {
                         console.error(err);

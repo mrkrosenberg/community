@@ -275,7 +275,7 @@ exports.deletePost = (req, res) => {
 
 exports.testFunction = (req, res) => {
 
-    console.log('req: ', req);
+    // console.log('req: ', req.params.postId);
 
     const collectionsArray = ['comments', 'likes', 'notifications'];
     const postId = req.params.postId;
@@ -288,13 +288,17 @@ exports.testFunction = (req, res) => {
             data.forEach(doc => {
                 batch.delete(db.doc(`/${collection}/${doc.id}`));
             })
-            return batch.commit();
+            // return batch.commit();
         })
-        .then(err => {
+        // .then(() => {
+        //     return batch.commit();
+        // })
+        .catch(err => {
             console.error(err);
             return res.status(400).json({
                 error: err.code
             })
         })
+    return batch.commit();
     })
 };
