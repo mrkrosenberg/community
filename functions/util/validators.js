@@ -58,9 +58,6 @@ exports.validateLoginData = (data) => {
         if(isEmpty(data.password)) {
             errors.password = emtpyErrorMessage;
         }
-        if(Object.keys(errors).length > 0) {
-            return res.status(400).json(errors)
-        } 
         
         return {
             errors,
