@@ -141,9 +141,9 @@ exports.getAuthenticatedUser = (req, res) => {
                         .orderBy('createdAt', 'desc')
                         .get()
         })
-        .then(data => {
+        .then(dataNote => {
             userData.notifications = [];
-            data.forEach(doc => {
+            dataNote.forEach(doc => {
                 userData.notifications.push({
                     notificationId: doc.id,
                     // recipient: doc.data().recipient,

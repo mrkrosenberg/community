@@ -26,14 +26,12 @@ module.exports = (req, res, next) => {
         })
         .then(data => {
             dataRef = data.docs[0].data();
-            // req.user.handle = data.docs[0].data().handle;
             req.user.handle = dataRef.handle;
-            // req.user.imageUrl = data.docs[0].data().imageUrl;
             req.user.imageUrl = dataRef.imageUrl;
             return next();
         })
         .catch(err => {
-            // console.error('Token error: ', err);
+            console.error('Token error: ', err);
             return res.status(403).json({
                 error: err.code
             });
